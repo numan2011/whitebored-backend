@@ -6,21 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Collaborative Whiteboard</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
 
 <body>
-    <div id="welcome-modal">
-        <div class="modal-content">
-            <h1>Numan Shah Study Whitebored</h1>
-            <p>14/yo dev</p>
-            <button id="enter-btn">vruh🥀</button>
-        </div>
-    </div>
-
-    <div id="app" class="blurred">
+    <div id="app">
         <canvas id="whiteboard"></canvas>
 
         <div class="toolbar">
@@ -102,7 +92,7 @@
         </div>
     </div>
 
-    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <script src="client.js"></script>
 </body>
 

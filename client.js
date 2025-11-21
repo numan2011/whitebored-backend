@@ -1,7 +1,17 @@
-const socket = io();
+// Configuration
+const BACKEND_URL = 'https://whitebored-backend.fly.dev';
+
+// Socket Initialization
+let socket;
+try {
+    socket = io(BACKEND_URL);
+    console.log('Connected to backend:', BACKEND_URL);
+} catch (e) {
+    console.error('Socket.io failed to initialize:', e);
+}
+
 const canvas = document.getElementById('whiteboard');
 const ctx = canvas.getContext('2d');
-const app = document.getElementById('app');
 
 // State
 let isDrawing = false;
@@ -29,18 +39,6 @@ const colorBtns = document.querySelectorAll('.color-btn');
 const sizeInput = document.getElementById('line-width');
 const fontSelect = document.getElementById('font-family');
 const clearBtn = document.getElementById('action-clear');
-const welcomeModal = document.getElementById('welcome-modal');
-const enterBtn = document.getElementById('enter-btn');
-
-// Modal Logic
-enterBtn.addEventListener('click', () => {
-    welcomeModal.style.opacity = '0';
-    welcomeModal.style.pointerEvents = 'none';
-    app.classList.remove('blurred');
-    setTimeout(() => {
-        welcomeModal.style.display = 'none';
-    }, 500);
-});
 
 // Resize canvas
 function resize() {
@@ -52,36 +50,34 @@ window.addEventListener('resize', resize);
 resize();
 
 // Socket Events
-socket.on('connect', () => {
-    console.log('Connected to server');
-});
+if (socket) {
+    socket.on('connect', () => {
+        console.log('Connected to server');
+    });
 
-socket.on('draw', (data) => {
-    // Store in history
-    strokes.push(data);
-    redraw();
-});
+    socket.on('draw', (data) => {
+        strokes.push(data);
+        redraw();
+    });
 
-socket.on('history', (history) => {
-    strokes = history;
-    redraw();
-});
+    socket.on('history', (history) => {
+        strokes = history;
+        redraw();
+    });
 
-socket.on('clear', () => {
-    strokes = [];
-    redraw();
-});
+    socket.on('clear', () => {
+        strokes = [];
+        redraw();
+    });
+}
 
 // Redraw Loop
 function redraw() {
-    // Clear screen (using identity transform to clear everything)
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Apply offset
     ctx.setTransform(1, 0, 0, 1, offsetX, offsetY);
 
-    // Draw all strokes
     strokes.forEach(data => {
         if (data.type === 'line') {
             drawLine(data.x0, data.y0, data.x1, data.y1, data.color, data.size, false);
@@ -102,7 +98,7 @@ function drawLine(x0, y0, x1, y1, color, size, emit) {
     ctx.stroke();
     ctx.closePath();
 
-    if (!emit) return;
+    if (!emit || !socket) return;
 
     const data = {
         type: 'line',
@@ -120,7 +116,7 @@ function drawText(text, x, y, color, size, font, emit) {
     ctx.fillStyle = color;
     ctx.fillText(text, x, y);
 
-    if (!emit) return;
+    if (!emit || !socket) return;
 
     const data = {
         type: 'text',
@@ -152,7 +148,6 @@ canvas.addEventListener('mousedown', (e) => {
     }
 
     isDrawing = true;
-    // Store World Coordinates
     lastX = e.clientX - offsetX;
     lastY = e.clientY - offsetY;
 });
@@ -175,19 +170,11 @@ canvas.addEventListener('mousemove', (e) => {
     let color = currentTool === 'eraser' ? '#1e1e2e' : currentColor;
 
     if (currentTool === 'eraser') {
-        // For infinite canvas eraser, we can't just use destination-out easily 
-        // because we are redrawing everything.
-        // Simple solution: Draw a line with background color.
-        // Complex solution: Modify strokes array (too hard for now).
-        // We will stick to drawing "background color" lines.
-        // Note: If we pan over something drawn, and background is different, this might look weird?
-        // But our background is solid color.
         ctx.globalCompositeOperation = 'source-over';
     } else {
         ctx.globalCompositeOperation = 'source-over';
     }
 
-    // Calculate World Coordinates
     const worldX = e.clientX - offsetX;
     const worldY = e.clientY - offsetY;
 
@@ -210,7 +197,7 @@ canvas.addEventListener('mouseout', () => {
 
 // Tool Switching
 Object.keys(tools).forEach(key => {
-    if (!tools[key]) return; // Guard against missing elements
+    if (!tools[key]) return;
     tools[key].addEventListener('click', () => {
         Object.values(tools).forEach(btn => btn && btn.classList.remove('active'));
         tools[key].classList.add('active');
@@ -247,7 +234,7 @@ fontSelect.addEventListener('change', (e) => {
 clearBtn.addEventListener('click', () => {
     strokes = [];
     redraw();
-    socket.emit('clear');
+    if (socket) socket.emit('clear');
 });
 
 // Text Input Handling
@@ -283,21 +270,8 @@ function createTextInput(x, y) {
         submitted = true;
 
         if (input.value) {
-            // Convert screen coordinates to world coordinates for storage
             const worldX = x - offsetX;
-            const worldY = y + (currentSize * 10) - offsetY; // Adjust for baseline?
-            // Actually y passed to createTextInput is top-left.
-            // drawText draws at baseline usually?
-            // Let's keep it simple:
-            // The input box top-left is at x, y (screen).
-            // We want the text to appear there.
-            // drawText(text, x, y) draws at x, y.
-            // If we use fillText, y is usually baseline.
-            // Let's adjust y slightly if needed, but for now:
-            // worldX = x - offsetX
-            // worldY = y - offsetY + (fontSize) roughly?
-            // Let's stick to the previous logic: y + (currentSize * 10)
-
+            const worldY = y + (currentSize * 10) - offsetY;
             drawText(input.value, worldX, worldY, currentColor, currentSize, currentFont, true);
         }
         document.body.removeChild(input);
