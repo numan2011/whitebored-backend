@@ -5,7 +5,12 @@ const path = require('path');
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
+const io = new Server(server, {
+  cors: {
+    origin: "*", // Allow all origins for now to fix the user's issue
+    methods: ["GET", "POST"]
+  }
+});
 
 // Serve static files from the current directory
 app.use(express.static(__dirname));
@@ -24,7 +29,7 @@ io.on('connection', (socket) => {
   socket.on('draw', (data) => {
     // Add to history
     drawingHistory.push(data);
-    
+
     // Broadcast to all other clients (excluding sender)
     socket.broadcast.emit('draw', data);
   });
