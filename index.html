@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Collaborative Whiteboard</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div id="welcome-modal">
+        <div class="modal-content">
+            <h1>Numan Shah Study Whitebored</h1>
+            <p>14/yo dev</p>
+            <button id="enter-btn">vruh🥀</button>
+        </div>
+    </div>
+
+    <div id="app" class="blurred">
+        <canvas id="whiteboard"></canvas>
+
+        <div class="toolbar">
+            <div class="tool-group">
+                <button id="tool-pencil" class="tool-btn active" title="Pencil">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+                    </svg>
+                </button>
+                <button id="tool-hand" class="tool-btn" title="Pan (Hand)">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"></path>
+                        <path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v2"></path>
+                        <path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8"></path>
+                        <path
+                            d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15">
+                        </path>
+                    </svg>
+                </button>
+                <button id="tool-eraser" class="tool-btn" title="Eraser">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 20H7L3 16C2 15 2 13 3 12L13 2L22 11L20 20Z"></path>
+                        <line x1="13" y1="2" x2="22" y2="11"></line>
+                    </svg>
+                </button>
+                <button id="tool-text" class="tool-btn" title="Text">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 7V4h16v3"></path>
+                        <path d="M9 20h6"></path>
+                        <line x1="12" y1="4" x2="12" y2="20"></line>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="separator"></div>
+
+            <div class="color-group">
+                <div class="color-btn active" data-color="#ffffff" style="background-color: #ffffff;"></div>
+                <div class="color-btn" data-color="#ff4757" style="background-color: #ff4757;"></div>
+                <div class="color-btn" data-color="#2ed573" style="background-color: #2ed573;"></div>
+                <div class="color-btn" data-color="#1e90ff" style="background-color: #1e90ff;"></div>
+                <div class="color-btn" data-color="#ffa502" style="background-color: #ffa502;"></div>
+            </div>
+
+            <div class="separator"></div>
+
+            <div class="font-group">
+                <select id="font-family" title="Font Family">
+                    <option value="Inter">Inter</option>
+                    <option value="Arial">Arial</option>
+                    <option value="'Courier New'">Courier New</option>
+                    <option value="Georgia">Georgia</option>
+                    <option value="'Times New Roman'">Times New Roman</option>
+                    <option value="'Comic Sans MS'">Comic Sans</option>
+                </select>
+            </div>
+
+            <div class="separator"></div>
+
+            <div class="size-group">
+                <input type="range" id="line-width" min="1" max="20" value="2" title="Brush Size">
+            </div>
+
+            <div class="separator"></div>
+
+            <div class="action-group">
+                <button id="action-clear" class="tool-btn danger" title="Clear Board">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="client.js"></script>
+</body>
+
+</html>
